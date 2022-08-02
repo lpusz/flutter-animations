@@ -24,7 +24,7 @@ class _TripListState extends State<TripList> {
     });
   }
 
-  void _addTrips() {
+  void _addTrips() async {
     List<Trip> _trips = [
       Trip(title: 'Beach Paradise', price: '350', nights: '3', img: 'beach.png'),
       Trip(title: 'City Break', price: '400', nights: '5', img: 'city.png'),
@@ -32,10 +32,23 @@ class _TripListState extends State<TripList> {
       Trip(title: 'Space Blast', price: '600', nights: '4', img: 'space.png'),
     ];
 
-    _trips.forEach((Trip trip) {
+    // -- Stream impl
+    await for (final trip in Stream.fromIterable(_trips)) {
+      await Future.delayed(Duration(milliseconds: 200));
       _tripTiles.add(_buildTile(trip));
       _listKey.currentState?.insertItem(_tripTiles.length - 1);
-    });
+    }
+
+    // -- Basic Futures impl
+    // Future<void> future = Future<void>(() {});
+    // _trips.forEach((Trip trip) {
+    //   future = future.then((_) {
+    //     return Future.delayed(Duration(milliseconds: 200), () {
+    //       _tripTiles.add(_buildTile(trip));
+    //       _listKey.currentState?.insertItem(_tripTiles.length - 1);
+    //     });
+    //   });
+    // });
   }
 
   Widget _buildTile(Trip trip) {
