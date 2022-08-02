@@ -10,6 +10,7 @@ class _HeartState extends State<Heart> with SingleTickerProviderStateMixin {
 
   late AnimationController _controller;
   late Animation<Color?> _colorAnimation;
+  late Animation<double> _sizeAnimation;
 
   @override
   void initState() {
@@ -28,29 +29,32 @@ class _HeartState extends State<Heart> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _colorAnimation,
-      builder: (BuildContext context, Widget? _) {
-        return IconButton(
-          icon: Icon(
-            Icons.favorite,
-            color: _colorAnimation.value,
-            size: 30,
-          ),
-          onPressed: () {
-            _isFavorite ? _controller.reverse() : _controller.forward();
-          },
-        );
-      },
+      builder: _builder,
     );
   }
 
   void _initAnimations() {
     _controller = AnimationController(
-      duration: const Duration(seconds: 1),
+      duration: const Duration(milliseconds: 300),
       vsync: this,
     );
+
     _colorAnimation = ColorTween(
       begin: Colors.grey[400],
       end: Colors.red,
+    ).animate(_controller);
+
+    _sizeAnimation = TweenSequence(
+      <TweenSequenceItem<double>>[
+        TweenSequenceItem<double>(
+          tween: Tween<double>(begin: 30, end: 40),
+          weight: 50,
+        ),
+        TweenSequenceItem<double>(
+          tween: Tween<double>(begin: 40, end: 30),
+          weight: 50,
+        ),
+      ],
     ).animate(_controller);
   }
 
@@ -64,5 +68,18 @@ class _HeartState extends State<Heart> with SingleTickerProviderStateMixin {
         _isFavorite = false;
       });
     }
+  }
+
+  Widget _builder(BuildContext context, Widget? _) {
+    return IconButton(
+      icon: Icon(
+        Icons.favorite,
+        color: _colorAnimation.value,
+        size: _sizeAnimation.value,
+      ),
+      onPressed: () {
+        _isFavorite ? _controller.reverse() : _controller.forward();
+      },
+    );
   }
 }
