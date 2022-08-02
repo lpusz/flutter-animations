@@ -21,38 +21,42 @@ class _SandBoxState extends State<SandBox> {
         width: _width,
         color: _color,
         margin: EdgeInsets.all(_margin),
-        child: Column(
-          children: [
-            MaterialButton(
-              onPressed: () => setState(() => _margin = 50),
-              child: Text('Animate margin'),
-            ),
-            MaterialButton(
-              onPressed: () => setState(() => _color = Colors.purple),
-              child: Text('Animate color'),
-            ),
-            MaterialButton(
-              onPressed: () => setState(() => _width = 400),
-              child: Text('Animate width'),
-            ),
-            MaterialButton(
-              onPressed: () => setState(() => _opacity = 0.25),
-              child: Text('Animate opacity'),
-            ),
-            SizedBox(height: 100),
-            AnimatedOpacity(
-              opacity: _opacity,
-              duration: const Duration(seconds: 1),
-              child: Text(
-                'Hide me',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
-        ),
+        child: _column(),
       ),
+    );
+  }
+
+  Widget _column() {
+    return Column(
+      children: [
+        MaterialButton(
+          onPressed: () => setState(() => _margin = 50),
+          child: Text('Animate margin'),
+        ),
+        MaterialButton(
+          onPressed: () => setState(() => _color = Colors.purple),
+          child: Text('Animate color'),
+        ),
+        MaterialButton(
+          onPressed: () => setState(() => _width = 400),
+          child: Text('Animate width'),
+        ),
+        MaterialButton(
+          onPressed: () => setState(() => _opacity = 0.25),
+          child: Text('Animate opacity'),
+        ),
+        SizedBox(height: 100),
+        AnimatedOpacity(
+          opacity: _opacity,
+          duration: const Duration(seconds: 1),
+          child: Text(
+            'Hide me',
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

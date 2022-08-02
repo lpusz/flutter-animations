@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ninja_trips/models/Trip.dart';
 import 'package:ninja_trips/screens/details.dart';
+import 'package:ninja_trips/screens/sand_box_2.dart';
 
 class TripList extends StatefulWidget {
   @override
@@ -83,13 +84,35 @@ class _TripListState extends State<TripList> {
   Widget build(BuildContext context) {
     return AnimatedList(
       key: _listKey,
-      initialItemCount: _tripTiles.length,
+      initialItemCount: _tripTiles.length + 1,
       itemBuilder: (BuildContext context, int index, Animation animation) {
+        if (index == _tripTiles.length) {
+          return _sandboxButton(animation, context);
+        }
+
         return SlideTransition(
           position: animation.drive(_offset),
           child: _tripTiles[index],
         );
       },
+    );
+  }
+
+  SlideTransition _sandboxButton(Animation<dynamic> animation, BuildContext context) {
+    return SlideTransition(
+      position: animation.drive(_offset),
+      child: MaterialButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SandBox2(),
+            ),
+          );
+        },
+        child: Text('Open Sandbox'),
+        color: Colors.purple,
+      ),
     );
   }
 }

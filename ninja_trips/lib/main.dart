@@ -8,6 +8,7 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    ModalRoute.of(context)?.isCurrent;
     return MaterialApp(
       title: 'Ninja Trips',
       home: Home(),
