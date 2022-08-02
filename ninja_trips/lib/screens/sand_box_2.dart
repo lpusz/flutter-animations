@@ -89,19 +89,13 @@ class _SandBox2State extends State<SandBox2> with SingleTickerProviderStateMixin
           IconButton(
             onPressed: () {
               setState(() => showMessage = !showMessage);
-            },
-            icon: Icon(Icons.accessible),
-          ),
-          IconButton(
-            onPressed: () {
-              setState(() => showMessage = !showMessage);
               _controller.forward();
               Future.delayed(_boxDuration).then((value) {
                 _controller.reverse();
                 setState(() => showMessage = !showMessage);
               });
             },
-            icon: Icon(Icons.adb_sharp),
+            icon: Icon(Icons.play_circle_fill_outlined),
           ),
         ],
       ),
