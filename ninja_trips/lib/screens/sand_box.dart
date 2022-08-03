@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class SandBox extends StatefulWidget {
-  const SandBox({Key? key}) : super(key: key);
+class BasicSandBox extends StatefulWidget {
+  const BasicSandBox({Key? key}) : super(key: key);
 
   @override
-  _SandBoxState createState() => _SandBoxState();
+  _BasicSandBoxState createState() => _BasicSandBoxState();
 }
 
-class _SandBoxState extends State<SandBox> {
+class _BasicSandBoxState extends State<BasicSandBox> {
   double _margin = 20;
   Color _color = Colors.blue;
   double _opacity = 1;

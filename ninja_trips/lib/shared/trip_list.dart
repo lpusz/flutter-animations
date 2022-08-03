@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ninja_trips/models/Trip.dart';
 import 'package:ninja_trips/screens/details.dart';
+import 'package:ninja_trips/screens/sand_box.dart';
 import 'package:ninja_trips/screens/sand_box_2.dart';
 
 class TripList extends StatefulWidget {
@@ -26,17 +27,28 @@ class _TripListState extends State<TripList> {
   }
 
   void _addTrips() async {
-    List<Trip> _trips = [
+    List<dynamic> elements = [
       Trip(title: 'Beach Paradise', price: '350', nights: '3', img: 'beach.jpg'),
       Trip(title: 'City Break', price: '400', nights: '5', img: 'city.jpg'),
       Trip(title: 'Ski Adventure', price: '750', nights: '2', img: 'ski.jpg'),
       Trip(title: 'Space Blast', price: '600', nights: '4', img: 'space.jpg'),
+      'SandBox',
+      'AnimationSandbox',
     ];
 
     // -- Stream impl
-    await for (final trip in Stream.fromIterable(_trips)) {
+    await for (final element in Stream.fromIterable(elements)) {
       await Future.delayed(Duration(milliseconds: 200));
-      _tripTiles.add(_buildTile(trip));
+      if (element is Trip) {
+        _tripTiles.add(_buildTile(element));
+      } else if (element is String) {
+        if (element == 'AnimationSandbox') {
+          _tripTiles.add(_buildSandboxButton(element, _openAnimationSandbox));
+        } else if (element == 'SandBox') {
+          _tripTiles.add(_buildSandboxButton(element, _openBasicSandbox));
+        }
+      }
+
       _listKey.currentState?.insertItem(_tripTiles.length - 1);
     }
 
@@ -80,16 +92,37 @@ class _TripListState extends State<TripList> {
     );
   }
 
+  Widget _buildSandboxButton(String text, void Function() onTap) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8),
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          height: 54,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: Colors.orangeAccent,
+          ),
+          child: Center(
+            child: Text(
+              text,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedList(
       key: _listKey,
-      initialItemCount: _tripTiles.length + 1,
+      initialItemCount: _tripTiles.length,
       itemBuilder: (BuildContext context, int index, Animation animation) {
-        if (index == _tripTiles.length) {
-          return _sandboxButton(animation, context);
-        }
-
         return SlideTransition(
           position: animation.drive(_offset),
           child: _tripTiles[index],
@@ -98,21 +131,17 @@ class _TripListState extends State<TripList> {
     );
   }
 
-  SlideTransition _sandboxButton(Animation<dynamic> animation, BuildContext context) {
-    return SlideTransition(
-      position: animation.drive(_offset),
-      child: MaterialButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => SandBox2(),
-            ),
-          );
-        },
-        child: Text('Open Sandbox'),
-        color: Colors.purple,
-      ),
+  void _openBasicSandbox() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => BasicSandBox()),
+    );
+  }
+
+  void _openAnimationSandbox() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AnimationSandBox()),
     );
   }
 }

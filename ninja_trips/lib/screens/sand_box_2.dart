@@ -1,23 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:ninja_trips/shared/rotatable_doggo.dart';
 
-class SandBox2 extends StatefulWidget {
-  const SandBox2({Key? key}) : super(key: key);
+class AnimationSandBox extends StatefulWidget {
+  const AnimationSandBox({Key? key}) : super(key: key);
 
   @override
-  State<SandBox2> createState() => _SandBox2State();
+  State<AnimationSandBox> createState() => _AnimationSandBoxState();
 }
 
-class _SandBox2State extends State<SandBox2> with SingleTickerProviderStateMixin {
+class _AnimationSandBoxState extends State<AnimationSandBox> with TickerProviderStateMixin {
   bool showMessage = false;
 
   final Duration _animationDuration = Duration(seconds: 3);
   final Duration _boxDuration = Duration(seconds: 3);
 
   late AnimationController _controller;
+  late AnimationController _spinningController;
+
   late Animation<double> _curve;
+  late Animation<double> _spinningCurve;
   late Animation<int> _bounceBoxAnimation;
   late Animation<double> _verticalAnimation;
+  late Animation<int> _pieselSizeAnimation;
 
   @override
   void initState() {
@@ -26,10 +30,20 @@ class _SandBox2State extends State<SandBox2> with SingleTickerProviderStateMixin
       duration: _boxDuration,
       vsync: this,
     );
+    _spinningController = AnimationController(
+      duration: _boxDuration,
+      vsync: this,
+    );
+
     _curve = CurvedAnimation(
       parent: _controller,
       curve: Curves.linear,
     );
+    _spinningCurve = CurvedAnimation(
+      parent: _spinningController,
+      curve: Curves.linear,
+    );
+
     _bounceBoxAnimation = TweenSequence(
       <TweenSequenceItem<int>>[
         TweenSequenceItem<int>(
@@ -64,9 +78,14 @@ class _SandBox2State extends State<SandBox2> with SingleTickerProviderStateMixin
       end: 0,
     ).animate(_curve);
 
-    _controller.addStatusListener((status) {
-      print(status);
-    });
+    _pieselSizeAnimation = TweenSequence<int>(<TweenSequenceItem<int>>[
+      TweenSequenceItem(tween: IntTween(begin: 50, end: 100), weight: 15),
+      TweenSequenceItem(tween: IntTween(begin: 100, end: 50), weight: 15),
+      TweenSequenceItem(tween: IntTween(begin: 50, end: 75), weight: 15),
+      TweenSequenceItem(tween: IntTween(begin: 75, end: 50), weight: 15),
+      TweenSequenceItem(tween: IntTween(begin: 50, end: 150), weight: 20),
+      TweenSequenceItem(tween: IntTween(begin: 150, end: 50), weight: 20),
+    ]).animate(_curve);
   }
 
   @override
@@ -81,6 +100,13 @@ class _SandBox2State extends State<SandBox2> with SingleTickerProviderStateMixin
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    _spinningController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -90,9 +116,14 @@ class _SandBox2State extends State<SandBox2> with SingleTickerProviderStateMixin
             onPressed: () {
               setState(() => showMessage = !showMessage);
               _controller.forward();
+              _spinningController.repeat();
+
               Future.delayed(_boxDuration).then((value) {
-                _controller.reverse();
-                setState(() => showMessage = !showMessage);
+                if (mounted) {
+                  _controller.reverse();
+                  setState(() => showMessage = !showMessage);
+                  Future.delayed(_boxDuration).then((value) => _spinningController.stop());
+                }
               });
             },
             icon: Icon(Icons.play_circle_fill_outlined),
@@ -107,37 +138,41 @@ class _SandBox2State extends State<SandBox2> with SingleTickerProviderStateMixin
           children: [
             RotatableDoggo(),
             AnimatedPositioned(
-              child: Container(
+              child: AnimatedContainer(
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height / 2,
-                color: Colors.purple,
+                color: !showMessage ? Colors.purple : Color(0xFF002BFF),
+                duration: _animationDuration,
               ),
               duration: _animationDuration,
               top: showMessage ? -MediaQuery.of(context).size.height / 2 : 0,
             ),
             AnimatedPositioned(
-              child: Container(
+              child: AnimatedContainer(
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height / 2,
-                color: Colors.green,
+                color: !showMessage ? Colors.green : Colors.yellow,
+                duration: _animationDuration,
               ),
               duration: _animationDuration,
               bottom: showMessage ? -MediaQuery.of(context).size.height / 2 : 0,
             ),
             AnimatedPositioned(
-              child: Container(
+              child: AnimatedContainer(
                 width: MediaQuery.of(context).size.width / 2,
                 height: MediaQuery.of(context).size.height,
-                color: Colors.blue,
+                color: !showMessage ? Colors.blue : Colors.indigo,
+                duration: _animationDuration,
               ),
               duration: _animationDuration,
               left: showMessage ? -MediaQuery.of(context).size.width / 2 : 0,
             ),
             AnimatedPositioned(
-              child: Container(
+              child: AnimatedContainer(
+                duration: _animationDuration,
                 width: MediaQuery.of(context).size.width / 2,
                 height: MediaQuery.of(context).size.height,
-                color: Colors.orange,
+                color: showMessage ? Colors.orange : Colors.red,
               ),
               duration: _animationDuration,
               right: showMessage ? -MediaQuery.of(context).size.width / 2 : 0,
@@ -145,19 +180,20 @@ class _SandBox2State extends State<SandBox2> with SingleTickerProviderStateMixin
             AnimatedBuilder(
               animation: _bounceBoxAnimation,
               builder: (context, _) {
-                // print(_verticalAnimation.value);
-                print(MediaQuery.of(context).size.height);
                 return Positioned(
                   left: _bounceBoxAnimation.value.toDouble(),
                   top: _verticalAnimation.value,
                   child: ClipRRect(
                     borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                    child: Image.asset(
-                      'images/piesel.jpg',
-                      height: 50,
-                      width: 50,
-                      fit: BoxFit.cover,
-                      alignment: Alignment.topCenter,
+                    child: RotationTransition(
+                      turns: _spinningCurve,
+                      child: Image.asset(
+                        'images/piesel.jpg',
+                        height: _pieselSizeAnimation.value.toDouble(),
+                        width: _pieselSizeAnimation.value.toDouble(),
+                        fit: BoxFit.cover,
+                        alignment: Alignment.topCenter,
+                      ),
                     ),
                   ),
                 );
