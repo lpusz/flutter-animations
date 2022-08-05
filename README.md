@@ -1,2 +1,3 @@
-# flutter-animations
-All coursefiles for the Flutter Animations tutorial series on the Net Ninja youtube channel.
+# Flutter Animation Playground
+
+Just some random Flutter Animations stuff pet project.
