@@ -1,3 +1,3 @@
-# ninja_trips
+# Flutter Animation Playground
 
-A new Ninja Flutter project.
+Just some random Flutter Animations stuff pet project.
